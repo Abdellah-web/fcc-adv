@@ -1,7 +1,7 @@
 {
-	"name": "my-hyperdev-app",
+	"name": "",
 	"version": "0.0.1",
-	"description": "What am I about?",
+	"description": "",
 	"main": "server.js",
 	"scripts": {
 		"start": "node server.js"
@@ -20,10 +20,6 @@
 	},
 	"engines": {
 		"node": "4.4.3"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://hyperdev.com/#!/project/welcome-project"
 	},
 	"keywords": [
 		"node",
