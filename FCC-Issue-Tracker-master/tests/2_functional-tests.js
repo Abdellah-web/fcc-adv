@@ -71,9 +71,7 @@ suite('Functional Tests', function() {
     test('No body', function(done) {
       chai.request(server)
       .put('/api/issues/apitest')
-      .send({
-        _id: id1
-      })
+      .send()
       .end(function(err, res){
         assert.equal(res.status, 200);
         assert.equal(res.text, 'no updated field sent');
@@ -144,6 +142,7 @@ suite('Functional Tests', function() {
       .end(function(err, res){
         assert.equal(res.status, 200);
         assert.isArray(res.body);
+        assert.equal(res.body[0].issue_title, 'new title');
         assert.property(res.body[0], 'issue_title');
         assert.property(res.body[0], 'issue_text');
         assert.property(res.body[0], 'created_on');
@@ -164,6 +163,8 @@ suite('Functional Tests', function() {
       .end(function(err, res){
         assert.equal(res.status, 200);
         assert.isArray(res.body);
+        assert.equal(res.body[0].issue_title, 'new title');
+        assert.equal(res.body[0].issue_text, 'new text');
         assert.property(res.body[0], 'issue_title');
         assert.property(res.body[0], 'issue_text');
         assert.property(res.body[0], 'created_on');
