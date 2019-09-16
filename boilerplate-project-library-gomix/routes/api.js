@@ -91,10 +91,7 @@ module.exports = function (app) {
         return res.send('please put id')
       }
     bookModel.findById({ _id: bookid }, function(err,book){
-    if (err){
-    res.send('err when searching book byId')
-    }  
-     if(!book) {
+    if (err || !book) {
           res.send('no book exists');
     }
         return res.json({_id: book._id, title: book.title, comments: book.comments });
@@ -112,10 +109,7 @@ module.exports = function (app) {
       return res.send('please put comment')
     }
     bookModel.findById({ _id: bookid }, function(err, book){
-    if (err){
-    res.send('err when searching book byId')
-    }
-     if(!book) {
+    if (err || !book) {
           res.send('no book exists');
     }
       if(comment){
@@ -139,7 +133,7 @@ module.exports = function (app) {
       }
      bookModel.deleteOne({ _id: bookid }, function(err){
         if (err){
-          res.send('err when searching book byId')
+          res.send( 'no book exists' )
         }
         return res.send('delete successful');
    }) 
