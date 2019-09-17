@@ -8,6 +8,26 @@ var helmet      = require('helmet');
 var apiRoutes         = require('./routes/api.js');
 var fccTestingRoutes  = require('./routes/fcctesting.js');
 var runner            = require('./test-runner');
+const mongoose = require('mongoose')
+require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+
+///////////////////////////////////////////////////////////
+//  Configure and connect to MongoDB database
+///////////////////////////////////////////////////////////
+const { dbuser, dbpw, dbhost, dbname } = process.env
+console.log(`mongodb://${dbuser}:${dbpw}@${dbhost}/${dbname}`)
+mongoose.Promise = global.Promise
+mongoose.set('useFindAndModify', false)
+mongoose.connect(`mongodb://${dbuser}:${dbpw}@${dbhost}/${dbname}`, { useNewUrlParser: true })
+
+// The connection used by default for every model created using mongoose.model
+const db = mongoose.connection
+db.on('error', err => {
+  console.error(`Mongoose default connection error: ${err}`)
+})
+db.once('open', () => {
+  console.info(`Mongoose default connection opened [${dbname}]`)
+})
 
 var app = express();
 
