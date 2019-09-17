@@ -1,14 +1,13 @@
-var mongo = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
-var url = process.env.DB;
+const Thread = require('../models/Thread')
 
 function ReplyHandler() {
   
   this.replyList = function(req, res) {
     var board = req.params.board;
-    mongo.connect(url,function(err,db) {
-      var collection = db.collection(board);
-      collection.find({_id: new ObjectId(req.query.thread_id)},
+    const { thread_id } = req.query;
+
+      Thread.find({_id: thread_id},
       {
         reported: 0,
         delete_password: 0,
@@ -18,22 +17,19 @@ function ReplyHandler() {
       .toArray(function(err,doc){
         res.json(doc[0]);
       });
-    });
   };
   
   this.newReply = function(req, res) {
     var board = req.params.board;
+    const { thread_id } = req.body;
     var reply = {
-      _id: new ObjectId(),
       text: req.body.text,
       created_on: new Date(),
       reported: false,
       delete_password: req.body.delete_password,
     };
-    mongo.connect(url,function(err,db) {
-      var collection = db.collection(board);
-      collection.findAndModify(
-        {_id: new ObjectId(req.body.thread_id)},
+      Thread.findAndModify(
+        {_id: thread_id},
         [],
         {
           $set: {bumped_on: new Date()},
@@ -47,12 +43,10 @@ function ReplyHandler() {
   
   this.reportReply = function(req, res) {
     var board = req.params.board;
-    mongo.connect(url,function(err,db) {
-      var collection = db.collection(board);
-      collection.findAndModify(
+    Thread.findAndModify(
         {
-          _id: new ObjectId(req.body.thread_id),
-          "replies._id": new ObjectId(req.body.reply_id)
+          _id: req.body.thread_id,
+          "replies._id": req.body.reply_id
         },
         [],
         { $set: { "replies.$.reported": true } },
@@ -63,24 +57,21 @@ function ReplyHandler() {
   };
   
   this.deleteReply = function(req, res) {
-    var board = req.params.board;
-    mongo.connect(url,function(err,db) {
-      var collection = db.collection(board);
-      collection.findAndModify(
+    const reply = thread.replies.filter(r => r._id == reply_id)[0]
+
+      if (reply.delete_password !== delete_password) {
+        return res.send('incorrect password')
+      }
+
+      await Thread.updateOne({
+        _id: thread_id,
+        'replies._id': reply_id
+      },
         {
-          _id: new ObjectId(req.body.thread_id),
-          replies: { $elemMatch: { _id: new ObjectId(req.body.reply_id), delete_password: req.body.delete_password } },
-        },
-        [],
-        { $set: { "replies.$.text": "[deleted]" } },
-        function(err, doc) {
-          if (doc.value === null) {
-            res.send('incorrect password');
-          } else {
-            res.send('success');
-          }
-        });
-    });
+          'replies.$.text': '[deleted]'
+        }
+      )
+      res.send('success')
   };
   
 }
