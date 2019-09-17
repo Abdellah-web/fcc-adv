@@ -4,12 +4,30 @@ var express     = require('express');
 var bodyParser  = require('body-parser');
 var expect      = require('chai').expect;
 var cors        = require('cors');
-
+var helmet      = require('helmet');
 var apiRoutes         = require('./routes/api.js');
 var fccTestingRoutes  = require('./routes/fcctesting.js');
 var runner            = require('./test-runner');
 
 var app = express();
+
+app.use(helmet())
+app.use(helmet.noCache())
+app.use(helmet.hidePoweredBy({ setTo: 'PHP 4.2.0' }))
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    styleSrc: ["'self'", 'fonts.googleapis.com'],
+    fontSrc: ['fonts.gstatic.com']
+  }
+}))
+// Only allow site to be loaded in an iFrame from sameorigin
+app.use(helmet.frameguard({ action: 'sameorigin' }))
+// Disable DNS prefetching
+app.use(helmet.dnsPrefetchControl())
+// Sets "Referrer-Policy: same-origin".
+app.use(helmet.referrerPolicy({ policy: 'same-origin' }))
+
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
